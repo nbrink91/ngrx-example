@@ -1,9 +1,9 @@
 import { ActionTypes, FormAction, FormPayload } from './form.actions';
 
-export function formReducer(state: FormPayload[] = [], action: FormAction) {
+export function formReducer(state: FormPayload, action: FormAction): FormPayload | undefined {
     switch (action.type) {
         case ActionTypes.Add: {
-            return state.push(action.payload);
+            return action.payload;
         }
         default:
             return state;

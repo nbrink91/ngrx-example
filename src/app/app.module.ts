@@ -8,8 +8,17 @@ import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
 import { FormComponent } from './form/form.component';
 import { ReactiveFormsModule } from '@angular/forms';
-import { StoreModule } from '@ngrx/store';
+import { StoreModule, ActionReducer, MetaReducer } from '@ngrx/store';
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { formReducer } from './form/form.reducer';
+import { environment } from 'src/environments/environment';
+import { localStorageSync } from 'ngrx-store-localstorage';
+
+export function localStorageSyncReducer(reducer: ActionReducer<any>): ActionReducer<any> {
+  return localStorageSync({keys: ['form'], rehydrate: true})(reducer);
+}
+
+export const metaReducers: MetaReducer<any>[] = [localStorageSyncReducer];
 
 @NgModule({
   declarations: [
@@ -25,7 +34,11 @@ import { formReducer } from './form/form.reducer';
     ReactiveFormsModule,
     StoreModule.forRoot({
       form: formReducer,
-    })
+    }, { metaReducers }),
+    StoreDevtoolsModule.instrument({
+      maxAge: 25,
+      logOnly: environment.production,
+    }),
   ],
   providers: [],
   bootstrap: [AppComponent]
