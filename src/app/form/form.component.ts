@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { Store } from '@ngrx/store';
+import { Store, select } from '@ngrx/store';
 import { FormPayload, FormAction } from './form.actions';
 
 @Component({
@@ -9,7 +9,7 @@ import { FormPayload, FormAction } from './form.actions';
   styleUrls: ['./form.component.scss']
 })
 export class FormComponent implements OnInit {
-  private formControl1;
+  private formControl1: FormControl;
 
   private select1: string[] = [
     'Option1',
@@ -18,9 +18,12 @@ export class FormComponent implements OnInit {
   ];
 
   constructor(private store: Store<FormPayload[]>) {
-    const value = store.select('form');
-
-    this.formControl1 = new FormControl(value);
+    store.pipe(
+      select('form')
+    ).subscribe(value => {
+      console.log(value);
+      this.formControl1 = new FormControl(value[0]);
+    });
   }
 
   ngOnInit() {
