@@ -1,32 +1,57 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Store, select } from '@ngrx/store';
 import { FormPayload, FormAction } from './form.actions';
+import { Router, ActivatedRoute, Params } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-form',
   templateUrl: './form.component.html',
   styleUrls: ['./form.component.scss']
 })
-export class FormComponent {
-  public formControl1: FormControl;
+export class FormComponent implements OnInit {
+  public value: FormControl = new FormControl();
+  private sub: Subscription;
 
-  public select1: string[] = [
-    'Option1',
-    'Option2',
-    'Option3'
-  ];
+  constructor(
+    private readonly store: Store<FormPayload[]>,
+    private readonly activatedRoute: ActivatedRoute,
+    private readonly router: Router) { }
 
-  constructor(private store: Store<FormPayload[]>) {
-    this.store.pipe(
-      select('form'),
-    ).subscribe((state: FormPayload) => {
-      this.formControl1 = new FormControl(state ? state.select1 : undefined);
+  ngOnInit(): void {
+    const params = this.activatedRoute.snapshot.queryParams;
+    if (params.value) {
+      this.store.dispatch(new FormAction({ value: params.value }));
+    }
 
-      this.formControl1.valueChanges.subscribe((value: string) => {
-        this.store.dispatch(new FormAction({ select1: value }));
+    const storeSub = this.store.pipe(
+      select('form')
+    ).subscribe((payload: FormPayload) => {
+      console.log(payload);
+      this.router.navigate([], {
+        relativeTo: this.activatedRoute,
+        queryParams: payload
+      });
+      this.value.patchValue(payload.value);
+    });
+    // const sub = this.store.pipe(
+    //   select('router'),
+    //   select('state'),
+    //   select('queryParams')
+    // ).subscribe((queryParams: any) => {
+    //   console.log(`Patching: ${queryParams.value}`);
+    //   console.log(queryParams);
+    //   this.value.patchValue(queryParams.value);
+    // });
+
+    this.value.valueChanges.subscribe((value: string) => {
+      console.log(`Navigating: ${value}`);
+      storeSub.unsubscribe();
+      this.router.navigate([], {
+        relativeTo: this.activatedRoute,
+        queryParams: { value }
       });
     });
   }
-
 }

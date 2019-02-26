@@ -5,7 +5,7 @@ export enum ActionTypes {
 }
 
 export interface FormPayload {
-    select1: string;
+    value: string;
 }
 
 export class FormAction implements Action {

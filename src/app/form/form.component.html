@@ -1,9 +1,5 @@
 <div>
-  <mat-form-field>
-    <mat-select placeholder="First Select" [formControl]="formControl1">
-      <mat-option *ngFor="let item of select1" [value]="item">
-        {{item}}
-      </mat-option>
-    </mat-select>
+  <mat-form-field class="example-full-width">
+    <input matInput placeholder="Favorite food" [formControl]="value">
   </mat-form-field>
 </div>
